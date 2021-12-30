@@ -12,7 +12,7 @@ import numpy as np
 
 
 def main():
-    root_dir = Path(".")
+    root_dir = Path("..")
 
     # States list can from
     state_list_short = [
