@@ -1,43 +1,36 @@
 # The evaluation of the performance of the Logistic Regression classifier for different states:
 
 
-
-
 # The packages to download:
 
-import sys
-import numpy as np
-import pandas as pd
-
-from aif360.metrics import BinaryLabelDatasetMetric
-from aif360.metrics import ClassificationMetric
-from aif360.metrics.utils import compute_boolean_conditioning_vector
 
 from aif360.datasets import StandardDataset
-
+from aif360.metrics import ClassificationMetric
+from folktables import ACSDataSource, ACSEmployment
+import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
-from sklearn.preprocessing import MaxAbsScaler
-from sklearn.preprocessing import MinMaxScaler
-
-import tensorflow.compat.v1 as tf
 
 
-from aif360.algorithms.preprocessing.optim_preproc_helpers.distortion_functions\
-            import get_distortion_adult, get_distortion_german, get_distortion_compas
-
-from aif360.algorithms.preprocessing.optim_preproc_helpers.opt_tools import OptTools
-
-from folktables import ACSDataSource, ACSEmployment
 def main():
     # Load the data:
-    state_list_short = ['CA', 'AK', 'HI', 'KS', 'NE', 'ND', 'NY', 'OR',
-                        'PR', 'TX', 'VT', 'WY']
-    data_source = ACSDataSource(survey_year='2018', horizon='1-Year', survey='person')
-
+    state_list_short = [
+        "CA",
+        "AK",
+        "HI",
+        "KS",
+        "NE",
+        "ND",
+        "NY",
+        "OR",
+        "PR",
+        "TX",
+        "VT",
+        "WY",
+    ]
+    data_source = ACSDataSource(survey_year="2018", horizon="1-Year", survey="person")
 
     # We perform the evaluation for each state:
-
 
     for state in state_list_short:
 
@@ -56,18 +49,22 @@ def main():
         index = data.index
         a_list = list(index)
         new_label = label[a_list]
-        data['label'] = new_label
+        data["label"] = new_label
         favorable_classes = [True]
-        protected_attribute_names = ['SEX']
+        protected_attribute_names = ["SEX"]
         privileged_classes = np.array([[1]])
-        data_all = StandardDataset(data, 'label', favorable_classes = favorable_classes,
-                             protected_attribute_names = protected_attribute_names,
-                            privileged_classes = privileged_classes)
-        privileged_groups = [{'SEX': 1}]
-        unprivileged_groups = [{'SEX': 2}]
+        data_all = StandardDataset(
+            data,
+            "label",
+            favorable_classes=favorable_classes,
+            protected_attribute_names=protected_attribute_names,
+            privileged_classes=privileged_classes,
+        )
+        privileged_groups = [{"SEX": 1}]
+        unprivileged_groups = [{"SEX": 2}]
         dataset_orig = data_all
 
-        for i in range(10): #10-fold cross validation, save values for each fold.
+        for i in range(10):  # 10-fold cross validation, save values for each fold.
             dataset_orig_train, dataset_orig_test = dataset_orig.split([0.7], shuffle=True)
 
             dataset_orig_train_pred = dataset_orig_train.copy(deepcopy=True)
@@ -80,25 +77,26 @@ def main():
             lmod = LogisticRegression()
             lmod.fit(X_train, y_train)
 
-
             # test the classifier:
 
             dataset_orig_test_pred = dataset_orig_test.copy(deepcopy=True)
 
             X_test = scale_orig.transform(dataset_orig_test.features)
-            y_test_pred_prob = lmod.predict_proba(X_test)[:,1]
+            y_test_pred_prob = lmod.predict_proba(X_test)[:, 1]
 
-            dataset_orig_test_pred.scores = y_test_pred_prob.reshape(-1,1)
+            dataset_orig_test_pred.scores = y_test_pred_prob.reshape(-1, 1)
 
             y_test_pred = np.zeros_like(dataset_orig_test_pred.labels)
             y_test_pred[y_test_pred_prob >= 0.5] = 1.0
             y_test_pred[~(y_test_pred_prob >= 0.5)] = 0.0
             dataset_orig_test_pred.labels = y_test_pred
 
-
-            cm_transf_test = ClassificationMetric(dataset_orig_test, dataset_orig_test_pred,
-                                                  unprivileged_groups=unprivileged_groups,
-                                                  privileged_groups=privileged_groups)
+            cm_transf_test = ClassificationMetric(
+                dataset_orig_test,
+                dataset_orig_test_pred,
+                unprivileged_groups=unprivileged_groups,
+                privileged_groups=privileged_groups,
+            )
             fpr = cm_transf_test.difference(cm_transf_test.false_positive_rate)
             fnr = cm_transf_test.difference(cm_transf_test.false_negative_rate)
             tpr = cm_transf_test.difference(cm_transf_test.true_positive_rate)
@@ -113,9 +111,7 @@ def main():
             FOR_LR = np.append(FOR_LR, fom)
             ACC_LR = np.append(ACC_LR, acc)
 
-
-
-        filename = "Adult_geo_gender_LR_eval_"+ state + ".txt"
+        filename = "Adult_geo_gender_LR_eval_" + state + ".txt"
 
         a_file = open(filename, "w")
 
@@ -126,5 +122,6 @@ def main():
 
         a_file.close()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

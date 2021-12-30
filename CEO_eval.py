@@ -3,45 +3,37 @@
 
 # The packages to download:
 
-import sys
-import numpy as np
-import pandas as pd
 
 from aif360.algorithms.postprocessing import CalibratedEqOddsPostprocessing
-
-from aif360.metrics import BinaryLabelDatasetMetric
-from aif360.metrics import ClassificationMetric
-from aif360.metrics.utils import compute_boolean_conditioning_vector
-
 from aif360.datasets import StandardDataset
-
+from aif360.metrics import ClassificationMetric
+from folktables import ACSDataSource, ACSEmployment
+import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
-from sklearn.preprocessing import MaxAbsScaler
-from sklearn.preprocessing import MinMaxScaler
-
-import tensorflow.compat.v1 as tf
-
-
-from aif360.algorithms.preprocessing.optim_preproc_helpers.distortion_functions\
-            import get_distortion_adult, get_distortion_german, get_distortion_compas
-
-from aif360.algorithms.preprocessing.optim_preproc_helpers.opt_tools import OptTools
-
-from folktables import ACSDataSource, ACSEmployment
 
 
 def main():
     # Load the data
 
-    state_list_short = ['CA', 'AK', 'HI', 'KS', 'NE', 'ND', 'NY', 'OR',
-                        'PR', 'TX', 'VT', 'WY']
+    state_list_short = [
+        "CA",
+        "AK",
+        "HI",
+        "KS",
+        "NE",
+        "ND",
+        "NY",
+        "OR",
+        "PR",
+        "TX",
+        "VT",
+        "WY",
+    ]
 
-    data_source = ACSDataSource(survey_year='2018', horizon='1-Year', survey='person')
-
+    data_source = ACSDataSource(survey_year="2018", horizon="1-Year", survey="person")
 
     # We perform the evaluation for each state:
-
 
     for state in state_list_short:
 
@@ -60,19 +52,23 @@ def main():
         index = data.index
         a_list = list(index)
         new_label = label[a_list]
-        data['label'] = new_label
+        data["label"] = new_label
         favorable_classes = [True]
-        protected_attribute_names = ['SEX']
+        protected_attribute_names = ["SEX"]
         privileged_classes = np.array([[1]])
-        data_all = StandardDataset(data, 'label', favorable_classes = favorable_classes,
-                             protected_attribute_names = protected_attribute_names,
-                            privileged_classes = privileged_classes)
-        privileged_groups = [{'SEX': 1}]
-        unprivileged_groups = [{'SEX': 2}]
+        data_all = StandardDataset(
+            data,
+            "label",
+            favorable_classes=favorable_classes,
+            protected_attribute_names=protected_attribute_names,
+            privileged_classes=privileged_classes,
+        )
+        privileged_groups = [{"SEX": 1}]
+        unprivileged_groups = [{"SEX": 2}]
         dataset_orig = data_all
 
-        for i in range(10): #10-fold cross validation, save values for each fold.
-            #dataset_orig_train, dataset_orig_test = dataset_orig.split([0.7], shuffle=True)
+        for i in range(10):  # 10-fold cross validation, save values for each fold.
+            # dataset_orig_train, dataset_orig_test = dataset_orig.split([0.7], shuffle=True)
 
             dataset_orig_train, dataset_orig_vt = dataset_orig.split([0.6], shuffle=True)
             dataset_orig_valid, dataset_orig_test = dataset_orig_vt.split([0.5], shuffle=True)
@@ -90,39 +86,48 @@ def main():
             lmod.fit(X_train, y_train)
 
             fav_idx = np.where(lmod.classes_ == dataset_orig_train.favorable_label)[0][0]
-            y_train_pred_prob = lmod.predict_proba(X_train)[:,fav_idx]
+            y_train_pred_prob = lmod.predict_proba(X_train)[:, fav_idx]
 
             # Prediction probs for validation and testing data
             X_valid = scale_orig.transform(dataset_orig_valid.features)
-            y_valid_pred_prob = lmod.predict_proba(X_valid)[:,fav_idx]
+            y_valid_pred_prob = lmod.predict_proba(X_valid)[:, fav_idx]
 
             class_thresh = 0.5
-            dataset_orig_train_pred.scores = y_train_pred_prob.reshape(-1,1)
-            dataset_orig_valid_pred.scores = y_valid_pred_prob.reshape(-1,1)
-
+            dataset_orig_train_pred.scores = y_train_pred_prob.reshape(-1, 1)
+            dataset_orig_valid_pred.scores = y_valid_pred_prob.reshape(-1, 1)
 
             y_train_pred = np.zeros_like(dataset_orig_train_pred.labels)
-            y_train_pred[y_train_pred_prob >= class_thresh] = dataset_orig_train_pred.favorable_label
-            y_train_pred[~(y_train_pred_prob >= class_thresh)] = dataset_orig_train_pred.unfavorable_label
+            y_train_pred[
+                y_train_pred_prob >= class_thresh
+            ] = dataset_orig_train_pred.favorable_label
+            y_train_pred[
+                ~(y_train_pred_prob >= class_thresh)
+            ] = dataset_orig_train_pred.unfavorable_label
             dataset_orig_train_pred.labels = y_train_pred
 
             y_valid_pred = np.zeros_like(dataset_orig_valid_pred.labels)
-            y_valid_pred[y_valid_pred_prob >= class_thresh] = dataset_orig_valid_pred.favorable_label
-            y_valid_pred[~(y_valid_pred_prob >= class_thresh)] = dataset_orig_valid_pred.unfavorable_label
+            y_valid_pred[
+                y_valid_pred_prob >= class_thresh
+            ] = dataset_orig_valid_pred.favorable_label
+            y_valid_pred[
+                ~(y_valid_pred_prob >= class_thresh)
+            ] = dataset_orig_valid_pred.unfavorable_label
             dataset_orig_valid_pred.labels = y_valid_pred
 
             # cost constraint of fnr will optimize generalized false negative rates, that of
             # fpr will optimize generalized false positive rates, and weighted will optimize
             # a weighted combination of both
-            cost_constraint = "weighted" # "fnr", "fpr", "weighted"
-            #random seed for calibrated equal odds prediction
+            cost_constraint = "weighted"  # "fnr", "fpr", "weighted"
+            # random seed for calibrated equal odds prediction
             randseed = 12345679
 
             # Learn parameters to equalize odds and apply to create a new dataset
-            cpp = CalibratedEqOddsPostprocessing(privileged_groups = privileged_groups,
-                                                 unprivileged_groups = unprivileged_groups,
-                                                 cost_constraint=cost_constraint,
-                                                 seed=randseed)
+            cpp = CalibratedEqOddsPostprocessing(
+                privileged_groups=privileged_groups,
+                unprivileged_groups=unprivileged_groups,
+                cost_constraint=cost_constraint,
+                seed=randseed,
+            )
 
             cpp = cpp.fit(dataset_orig_valid, dataset_orig_valid_pred)
 
@@ -132,20 +137,25 @@ def main():
             dataset_new_test_pred = dataset_orig_test.copy(deepcopy=True)
 
             X_test = scale_orig.transform(dataset_orig_test.features)
-            y_test_pred_prob = lmod.predict_proba(X_test)[:,fav_idx]
+            y_test_pred_prob = lmod.predict_proba(X_test)[:, fav_idx]
 
-            dataset_orig_test_pred.scores = y_test_pred_prob.reshape(-1,1)
+            dataset_orig_test_pred.scores = y_test_pred_prob.reshape(-1, 1)
 
             y_test_pred = np.zeros_like(dataset_orig_test_pred.labels)
             y_test_pred[y_test_pred_prob >= class_thresh] = dataset_orig_test_pred.favorable_label
-            y_test_pred[~(y_test_pred_prob >= class_thresh)] = dataset_orig_test_pred.unfavorable_label
+            y_test_pred[
+                ~(y_test_pred_prob >= class_thresh)
+            ] = dataset_orig_test_pred.unfavorable_label
             dataset_orig_test_pred.labels = y_test_pred
 
             dataset_transf_test_pred = cpp.predict(dataset_orig_test_pred)
 
-            cm_transf_test = ClassificationMetric(dataset_orig_test, dataset_transf_test_pred,
-                                                  unprivileged_groups=unprivileged_groups,
-                                                  privileged_groups=privileged_groups)
+            cm_transf_test = ClassificationMetric(
+                dataset_orig_test,
+                dataset_transf_test_pred,
+                unprivileged_groups=unprivileged_groups,
+                privileged_groups=privileged_groups,
+            )
             fpr = cm_transf_test.difference(cm_transf_test.false_positive_rate)
             fnr = cm_transf_test.difference(cm_transf_test.false_negative_rate)
             tpr = cm_transf_test.difference(cm_transf_test.true_positive_rate)
@@ -160,9 +170,7 @@ def main():
             FOR_CEO = np.append(FOR_CEO, fom)
             ACC_CEO = np.append(ACC_CEO, acc)
 
-
-
-        filename = "Adult_geo_gender_CEO_eval_"+ state + ".txt"
+        filename = "Adult_geo_gender_CEO_eval_" + state + ".txt"
 
         a_file = open(filename, "w")
 
