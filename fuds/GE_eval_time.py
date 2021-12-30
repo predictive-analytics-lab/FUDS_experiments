@@ -32,6 +32,11 @@ def main():
 
     data_source = ACSDataSource(survey_year="2014", horizon="1-Year", survey="person")
 
+    max_iterations = 500
+    C = 100
+    print_flag = False
+    gamma = 0.005
+
     # We perform the evaluation for each state:
 
     for state in state_list_short:
@@ -42,11 +47,6 @@ def main():
         PPV_GE = np.array([])
         FOR_GE = np.array([])
         ACC_GE = np.array([])
-
-        max_iterations = 500
-        C = 100
-        print_flag = False
-        gamma = 0.005
 
         acs_data = data_source.get_data(states=[state], download=True)
         data = acs_data[feat]
@@ -71,7 +71,7 @@ def main():
         unprivileged_groups = [{"SEX": 2}]
         dataset_orig = data_all
 
-        for i in range(10):  # 10-fold cross validation, save values for each fold.
+        for _ in range(10):  # 10-fold cross validation, save values for each fold.
             dataset_orig_train, dataset_orig_test = dataset_orig.split([0.7], shuffle=True)
 
             fair_model = GerryFairClassifier(
@@ -110,14 +110,11 @@ def main():
 
         filename = "Adult_time_gender_GE_eval_" + state + ".txt"
 
-        a_file = open(filename, "w")
+        with open(filename, "w") as a_file:
+            res = [FPR_GE, FNR_GE, TPR_GE, PPV_GE, FOR_GE, ACC_GE]
 
-        res = [FPR_GE, FNR_GE, TPR_GE, PPV_GE, FOR_GE, ACC_GE]
-
-        for metric in res:
-            np.savetxt(a_file, metric)
-
-        a_file.close()
+            for metric in res:
+                np.savetxt(a_file, metric)
 
 
 if __name__ == "__main__":

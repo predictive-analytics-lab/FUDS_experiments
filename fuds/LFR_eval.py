@@ -65,7 +65,7 @@ def main():
         unprivileged_groups = [{"SEX": 2}]
         dataset_orig = data_all
 
-        for i in range(10):  # 10-fold cross validation, save values for each fold.
+        for _ in range(10):  # 10-fold cross validation, save values for each fold.
             dataset_orig_train, dataset_orig_test = dataset_orig.split([0.7], shuffle=True)
 
             scale_orig = StandardScaler()
@@ -118,14 +118,11 @@ def main():
 
         filename = "Adult_geo_gender_LFR_eval_" + state + ".txt"
 
-        a_file = open(filename, "w")
+        with open(filename, "w") as a_file:
+            res = [FPR_LFR, FNR_LFR, TPR_LFR, PPV_LFR, FOR_LFR, ACC_LFR]
 
-        res = [FPR_LFR, FNR_LFR, TPR_LFR, PPV_LFR, FOR_LFR, ACC_LFR]
-
-        for metric in res:
-            np.savetxt(a_file, metric)
-
-        a_file.close()
+            for metric in res:
+                np.savetxt(a_file, metric)
 
 
 if __name__ == "__main__":

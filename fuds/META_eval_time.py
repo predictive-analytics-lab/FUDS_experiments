@@ -66,7 +66,7 @@ def main():
         unprivileged_groups = [{"SEX": 2}]
         dataset_orig = data_all
 
-        for i in range(10):  # 10-fold cross validation, save values for each fold.
+        for _ in range(10):  # 10-fold cross validation, save values for each fold.
             dataset_orig_train, dataset_orig_test = dataset_orig.split([0.7], shuffle=True)
 
             min_max_scaler = MaxAbsScaler()
@@ -102,14 +102,11 @@ def main():
 
         filename = "Adult_time_gender_META_eval_" + state + ".txt"
 
-        a_file = open(filename, "w")
+        with open(filename, "w") as a_file:
+            res = [FPR_META, FNR_META, TPR_META, PPV_META, FOR_META, ACC_META]
 
-        res = [FPR_META, FNR_META, TPR_META, PPV_META, FOR_META, ACC_META]
-
-        for metric in res:
-            np.savetxt(a_file, metric)
-
-        a_file.close()
+            for metric in res:
+                np.savetxt(a_file, metric)
 
 
 if __name__ == "__main__":

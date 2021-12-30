@@ -68,7 +68,7 @@ def main():
         unprivileged_groups = [{"SEX": 2}]
         dataset_orig = data_all
 
-        for i in range(10):  # 10-fold cross validation, save values for each fold.
+        for _ in range(10):  # 10-fold cross validation, save values for each fold.
             dataset_orig_train, dataset_orig_test = dataset_orig.split([0.7], shuffle=True)
 
             RW = Reweighing(
@@ -121,14 +121,11 @@ def main():
 
         filename = "Adult_time_gender_RW_eval_" + state + ".txt"
 
-        a_file = open(filename, "w")
+        with open(filename, "w") as a_file:
+            res = [FPR_RW, FNR_RW, TPR_RW, PPV_RW, FOR_RW, ACC_RW]
 
-        res = [FPR_RW, FNR_RW, TPR_RW, PPV_RW, FOR_RW, ACC_RW]
-
-        for metric in res:
-            np.savetxt(a_file, metric)
-
-        a_file.close()
+            for metric in res:
+                np.savetxt(a_file, metric)
 
 
 if __name__ == "__main__":

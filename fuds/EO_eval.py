@@ -33,6 +33,7 @@ def main():
 
     data_source = ACSDataSource(survey_year="2018", horizon="1-Year", survey="person")
 
+    class_thresh = 0.5
     # We perform the evaluation for each state:
 
     for state in state_list_short:
@@ -67,7 +68,7 @@ def main():
         unprivileged_groups = [{"SEX": 2}]
         dataset_orig = data_all
 
-        for i in range(10):  # 10-fold cross validation, save values for each fold.
+        for _ in range(10):  # 10-fold cross validation, save values for each fold.
             # dataset_orig_train, dataset_orig_test = dataset_orig.split([0.7], shuffle=True)
 
             dataset_orig_train, dataset_orig_vt = dataset_orig.split([0.6], shuffle=True)
@@ -92,7 +93,6 @@ def main():
             X_valid = scale_orig.transform(dataset_orig_valid.features)
             y_valid_pred_prob = lmod.predict_proba(X_valid)[:, fav_idx]
 
-            class_thresh = 0.5
             dataset_orig_train_pred.scores = y_train_pred_prob.reshape(-1, 1)
             dataset_orig_valid_pred.scores = y_valid_pred_prob.reshape(-1, 1)
 
@@ -163,14 +163,11 @@ def main():
 
         filename = "Adult_geo_gender_EO_eval_" + state + ".txt"
 
-        a_file = open(filename, "w")
+        with open(filename, "w") as a_file:
+            res = [FPR_EO, FNR_EO, TPR_EO, PPV_EO, FOR_EO, ACC_EO]
 
-        res = [FPR_EO, FNR_EO, TPR_EO, PPV_EO, FOR_EO, ACC_EO]
-
-        for metric in res:
-            np.savetxt(a_file, metric)
-
-        a_file.close()
+            for metric in res:
+                np.savetxt(a_file, metric)
 
 
 if __name__ == "__main__":

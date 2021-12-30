@@ -77,14 +77,11 @@ def main():
 
         filename = "Adult_time_gender_Kamiran_eval_" + state + ".txt"
 
-        a_file = open(filename, "w")
+        with open(filename, "w") as a_file:
+            res = [FPR, FNR, TPR, PPV, NPV, ACC, GACC, DI]
 
-        res = [FPR, FNR, TPR, PPV, NPV, ACC, GACC, DI]
-
-        for metric in res:
-            np.savetxt(a_file, metric)
-
-        a_file.close()
+            for metric in res:
+                np.savetxt(a_file, metric)
 
 
 if __name__ == "__main__":
