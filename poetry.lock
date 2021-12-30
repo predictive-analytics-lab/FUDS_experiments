@@ -218,6 +218,23 @@ ci = ["fairlearn (==0.4.6)", "cloudpickle (>=2.0.0,<3.0.0)", "pytest (>=6.0.0,<7
 all = ["fairlearn (==0.4.6)", "cloudpickle (>=2.0.0,<3.0.0)"]
 
 [[package]]
+name = "fairlearn"
+version = "0.7.0"
+description = "Algorithms for mitigating unfairness in supervised machine learning"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+numpy = ">=1.17.2"
+pandas = ">=0.25.1"
+scikit-learn = ">=0.22.1"
+scipy = ">=1.4.1"
+
+[package.extras]
+customplots = ["matplotlib (>=3.2.1)"]
+
+[[package]]
 name = "filelock"
 version = "3.4.2"
 description = "A platform independent file lock."
@@ -1253,7 +1270,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7.1,<3.11"
-content-hash = "5f2ee558f733d60d0e89018ab5c80db6eadd69285fc288a5ccc8cefe864646ee"
+content-hash = "0aae8e01b892daa7fc4812cc9e6d5c198a89bf13a2757c392456703b918e328c"
 
 [metadata.files]
 absl-py = [
@@ -1322,6 +1339,10 @@ distlib = [
 ethicml = [
     {file = "EthicML-0.5.1-py3-none-any.whl", hash = "sha256:98e585efeb837a33a5efadabfa6130f102bf7ff0f2883edb42e7aa11e40366c1"},
     {file = "EthicML-0.5.1.tar.gz", hash = "sha256:30ebe5bfb60fd1cc914655db946f71a3ea3f1ef885a9f192d5fb35d72cc7696e"},
+]
+fairlearn = [
+    {file = "fairlearn-0.7.0-py3-none-any.whl", hash = "sha256:ac27e89952b5c5e3a3fdee05bfbadacfacc30fe00b917b057e2f605920ef5e44"},
+    {file = "fairlearn-0.7.0.tar.gz", hash = "sha256:a0d287d34275b7b2ae29d084754e3eca3a47289f774c77229921b10c7c52127e"},
 ]
 filelock = [
     {file = "filelock-3.4.2-py3-none-any.whl", hash = "sha256:cf0fc6a2f8d26bd900f19bf33915ca70ba4dd8c56903eeb14e1e7a2fd7590146"},
