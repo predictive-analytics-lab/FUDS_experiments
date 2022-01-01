@@ -33,6 +33,16 @@ def main():
         "WY",
     ]
     data_source = ACSDataSource(survey_year="2014", horizon="1-Year", survey="person")
+    
+    feat = ['COW',
+        'SCHL',
+        'MAR',
+        'OCCP',
+        'POBP',
+        'RELP',
+        'WKHP',
+        'SEX',
+        'RAC1P']
 
     # We perform the evaluation for each state:
 
