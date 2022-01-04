@@ -12,15 +12,12 @@ import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 
-from fuds.utilties import model_seed
+from fuds.utilties import model_seed, state_list_short, feat
 
 
 def main():
     # Load the data
-    state_list_short = ["CA", "AK", "HI", "KS", "NE", "ND", "NY", "OR", "PR", "TX", "VT", "WY"]
     data_source = ACSDataSource(survey_year="2018", horizon="1-Year", survey="person")
-
-    feat = ['COW', 'SCHL', 'MAR', 'OCCP', 'POBP', 'RELP', 'WKHP', 'SEX', 'RAC1P']
 
     # We perform the evaluation for each state:
 

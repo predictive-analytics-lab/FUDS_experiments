@@ -3,7 +3,7 @@
 # import the required packages
 import nest_asyncio
 
-from fuds.utilties import model_seed
+from fuds.utilties import model_seed, state_list_short
 
 nest_asyncio.apply()
 
@@ -15,9 +15,6 @@ import numpy as np
 
 def main():
     root_dir = Path("..")
-
-    # States list can from
-    state_list_short = ["CA", "AK", "HI", "KS", "NE", "ND", "NY", "OR", "PR", "TX", "VT", "WY"]
 
     for state in state_list_short:
 
