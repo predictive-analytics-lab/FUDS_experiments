@@ -32,7 +32,7 @@ def main():
         "WY",
     ]
     data_source = ACSDataSource(survey_year="2014", horizon="1-Year", survey="person")
-    
+
     feat = ['COW',
         'SCHL',
         'MAR',
@@ -171,7 +171,7 @@ def main():
             FOR_EO = np.append(FOR_EO, fom)
             ACC_EO = np.append(ACC_EO, acc)
 
-        filename = "Adult_time_gender_EO_eval_" + state + ".txt"
+        filename = f"Adult_time_gender_EO_eval_{state}.txt"
 
         with open(filename, "w") as a_file:
             res = [FPR_EO, FNR_EO, TPR_EO, PPV_EO, FOR_EO, ACC_EO]

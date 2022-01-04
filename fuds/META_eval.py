@@ -29,7 +29,7 @@ def main():
         "WY",
     ]
     data_source = ACSDataSource(survey_year="2018", horizon="1-Year", survey="person")
-    
+
     feat = ['COW',
         'SCHL',
         'MAR',
@@ -108,7 +108,7 @@ def main():
             FOR_META = np.append(FOR_META, fom)
             ACC_META = np.append(ACC_META, acc)
 
-        filename = "Adult_geo_gender_META_eval_" + state + ".txt"
+        filename = f"Adult_geo_gender_META_eval_{state}.txt"
 
         with open(filename, "w") as a_file:
             res = [FPR_META, FNR_META, TPR_META, PPV_META, FOR_META, ACC_META]

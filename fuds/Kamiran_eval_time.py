@@ -75,7 +75,7 @@ def main():
             DI = np.append(DI, evaluation["prob_pos_SEX_1_0/SEX_1_1"])
             NPV = np.append(NPV, evaluation["NPV_SEX_1_0-SEX_1_1"])
 
-        filename = "Adult_time_gender_Kamiran_eval_" + state + ".txt"
+        filename = f"Adult_time_gender_Kamiran_eval_{state}.txt"
 
         with open(filename, "w") as a_file:
             res = [FPR, FNR, TPR, PPV, NPV, ACC, GACC, DI]

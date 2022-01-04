@@ -32,7 +32,7 @@ def main():
     ]
 
     data_source = ACSDataSource(survey_year="2018", horizon="1-Year", survey="person")
-    
+
     feat = ['COW',
         'SCHL',
         'MAR',
@@ -180,7 +180,7 @@ def main():
             FOR_CEO = np.append(FOR_CEO, fom)
             ACC_CEO = np.append(ACC_CEO, acc)
 
-        filename = "Adult_geo_gender_CEO_eval_" + state + ".txt"
+        filename = f"Adult_geo_gender_CEO_eval_{state}.txt"
 
         with open(filename, "w") as a_file:
             res = [FPR_CEO, FNR_CEO, TPR_CEO, PPV_CEO, FOR_CEO, ACC_CEO]

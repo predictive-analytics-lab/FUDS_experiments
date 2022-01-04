@@ -33,7 +33,7 @@ def main():
         "WY",
     ]
     data_source = ACSDataSource(survey_year="2014", horizon="1-Year", survey="person")
-    
+
     feat = ['COW',
         'SCHL',
         'MAR',
@@ -129,7 +129,7 @@ def main():
             FOR_RW = np.append(FOR_RW, fom)
             ACC_RW = np.append(ACC_RW, acc)
 
-        filename = "Adult_time_gender_RW_eval_" + state + ".txt"
+        filename = f"Adult_time_gender_RW_eval_{state}.txt"
 
         with open(filename, "w") as a_file:
             res = [FPR_RW, FNR_RW, TPR_RW, PPV_RW, FOR_RW, ACC_RW]

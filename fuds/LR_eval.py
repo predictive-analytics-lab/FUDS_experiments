@@ -29,7 +29,7 @@ def main():
         "WY",
     ]
     data_source = ACSDataSource(survey_year="2018", horizon="1-Year", survey="person")
-    
+
     feat = ['COW',
         'SCHL',
         'MAR',
@@ -121,7 +121,7 @@ def main():
             FOR_LR = np.append(FOR_LR, fom)
             ACC_LR = np.append(ACC_LR, acc)
 
-        filename = "Adult_geo_gender_LR_eval_" + state + ".txt"
+        filename = f"Adult_geo_gender_LR_eval_{state}.txt"
 
         with open(filename, "w") as a_file:
             res = [FPR_LR, FNR_LR, TPR_LR, PPV_LR, FOR_LR, ACC_LR]
