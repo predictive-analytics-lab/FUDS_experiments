@@ -11,7 +11,7 @@ from aif360.metrics import ClassificationMetric
 from folktables import ACSDataSource
 import numpy as np
 
-from fuds.utilties import load_acs_aif, state_list_short
+from utilties import load_acs_aif, state_list_short
 
 
 def main():

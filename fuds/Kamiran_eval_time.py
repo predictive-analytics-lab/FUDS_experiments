@@ -3,11 +3,7 @@
 # TIME SHIFT
 
 # import the required packages
-import nest_asyncio
-
-from fuds.utilties import model_seed, state_list_short
-
-nest_asyncio.apply()
+from utilties import model_seed, state_list_short
 
 from pathlib import Path
 
