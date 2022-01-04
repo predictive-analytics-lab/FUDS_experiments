@@ -16,31 +16,11 @@ from sklearn.preprocessing import StandardScaler
 
 def main():
     # Load the data:
-    state_list_short = [
-        "CA",
-        "AK",
-        "HI",
-        "KS",
-        "NE",
-        "ND",
-        "NY",
-        "OR",
-        "PR",
-        "TX",
-        "VT",
-        "WY",
-    ]
+    state_list_short = ["CA", "AK", "HI", "KS", "NE", "ND", "NY", "OR", "PR", "TX", "VT", "WY"]
     data_source = ACSDataSource(survey_year="2014", horizon="1-Year", survey="person")
 
-    feat = ['COW',
-        'SCHL',
-        'MAR',
-        'OCCP',
-        'POBP',
-        'RELP',
-        'WKHP',
-        'SEX',
-        'RAC1P']
+    feat = ['COW', 'SCHL', 'MAR', 'OCCP', 'POBP', 'RELP', 'WKHP', 'SEX', 'RAC1P']
+    model_seed = 12345679
 
     # We perform the evaluation for each state:
 
@@ -76,8 +56,10 @@ def main():
         unprivileged_groups = [{"SEX": 2}]
         dataset_orig = data_all
 
-        for _ in range(10):  # 10-fold cross validation, save values for each fold.
-            dataset_orig_train, dataset_orig_test = dataset_orig.split([0.7], shuffle=True)
+        for data_seed in range(10):  # 10-fold cross validation, save values for each fold.
+            dataset_orig_train, dataset_orig_test = dataset_orig.split(
+                [0.7], shuffle=True, seed=data_seed
+            )
 
             scale_orig = StandardScaler()
             dataset_orig_train.features = scale_orig.fit_transform(dataset_orig_train.features)
@@ -90,6 +72,7 @@ def main():
                 Ay=1.0,
                 Az=2.0,
                 verbose=1,
+                seed=model_seed,
             )
             TR = TR.fit(dataset_orig_train, maxiter=5000, maxfun=5000)
 

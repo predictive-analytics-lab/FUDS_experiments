@@ -15,31 +15,11 @@ from sklearn.preprocessing import StandardScaler
 
 def main():
     # Load the data
-    state_list_short = [
-        "CA",
-        "AK",
-        "HI",
-        "KS",
-        "NE",
-        "ND",
-        "NY",
-        "OR",
-        "PR",
-        "TX",
-        "VT",
-        "WY",
-    ]
+    state_list_short = ["CA", "AK", "HI", "KS", "NE", "ND", "NY", "OR", "PR", "TX", "VT", "WY"]
     data_source = ACSDataSource(survey_year="2018", horizon="1-Year", survey="person")
 
-    feat = ['COW',
-        'SCHL',
-        'MAR',
-        'OCCP',
-        'POBP',
-        'RELP',
-        'WKHP',
-        'SEX',
-        'RAC1P']
+    feat = ['COW', 'SCHL', 'MAR', 'OCCP', 'POBP', 'RELP', 'WKHP', 'SEX', 'RAC1P']
+    model_seed = 12345679
 
     # We perform the evaluation for each state:
 
@@ -75,8 +55,10 @@ def main():
         unprivileged_groups = [{"SEX": 2}]
         dataset_orig = data_all
 
-        for _ in range(10):  # 10-fold cross validation, save values for each fold.
-            dataset_orig_train, dataset_orig_test = dataset_orig.split([0.7], shuffle=True)
+        for data_seed in range(10):  # 10-fold cross validation, save values for each fold.
+            dataset_orig_train, dataset_orig_test = dataset_orig.split(
+                [0.7], shuffle=True, seed=data_seed
+            )
 
             RW = Reweighing(
                 unprivileged_groups=unprivileged_groups,
@@ -89,7 +71,8 @@ def main():
             X_train = scale_transf.fit_transform(dataset_transf_train.features)
             y_train = dataset_transf_train.labels.ravel()
 
-            lmod = LogisticRegression()
+            rand_state = np.random.RandomState(model_seed)
+            lmod = LogisticRegression(random_state=rand_state)
             lmod.fit(X_train, y_train, sample_weight=dataset_transf_train.instance_weights)
             lmod.predict(X_train)
 
@@ -99,7 +82,6 @@ def main():
 
             dataset_transf_test_pred = dataset_orig_test.copy(deepcopy=True)
             X_test = scale_transf.fit_transform(dataset_transf_test_pred.features)
-            dataset_transf_test_pred.labels
             dataset_transf_test_pred.scores = lmod.predict_proba(X_test)[:, pos_ind].reshape(-1, 1)
 
             fav_inds = dataset_transf_test_pred.scores > 0.5

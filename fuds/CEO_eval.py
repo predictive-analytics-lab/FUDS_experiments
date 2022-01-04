@@ -11,37 +11,17 @@ from folktables import ACSDataSource, ACSEmployment
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
+import wandb
 
 
 def main():
     # Load the data
 
-    state_list_short = [
-        "CA",
-        "AK",
-        "HI",
-        "KS",
-        "NE",
-        "ND",
-        "NY",
-        "OR",
-        "PR",
-        "TX",
-        "VT",
-        "WY",
-    ]
+    state_list_short = ["CA", "AK", "HI", "KS", "NE", "ND", "NY", "OR", "PR", "TX", "VT", "WY"]
 
     data_source = ACSDataSource(survey_year="2018", horizon="1-Year", survey="person")
 
-    feat = ['COW',
-        'SCHL',
-        'MAR',
-        'OCCP',
-        'POBP',
-        'RELP',
-        'WKHP',
-        'SEX',
-        'RAC1P']
+    feat = ['COW', 'SCHL', 'MAR', 'OCCP', 'POBP', 'RELP', 'WKHP', 'SEX', 'RAC1P']
 
     class_thresh = 0.5
     # cost constraint of fnr will optimize generalized false negative rates, that of
@@ -49,7 +29,7 @@ def main():
     # a weighted combination of both
     cost_constraint = "weighted"  # "fnr", "fpr", "weighted"
     # random seed for calibrated equal odds prediction
-    randseed = 12345679
+    model_seed = 12345679
 
     # We perform the evaluation for each state:
 
@@ -85,15 +65,21 @@ def main():
         unprivileged_groups = [{"SEX": 2}]
         dataset_orig = data_all
 
-        for _ in range(10):  # 10-fold cross validation, save values for each fold.
+        for data_seed in range(10):  # 10-fold cross validation, save values for each fold.
             # dataset_orig_train, dataset_orig_test = dataset_orig.split([0.7], shuffle=True)
 
-            dataset_orig_train, dataset_orig_vt = dataset_orig.split([0.6], shuffle=True)
-            dataset_orig_valid, dataset_orig_test = dataset_orig_vt.split([0.5], shuffle=True)
+            dataset_orig_train, dataset_orig_vt = dataset_orig.split(
+                [0.6], shuffle=True, seed=data_seed
+            )
+            dataset_orig_valid, dataset_orig_test = dataset_orig_vt.split(
+                [0.5], shuffle=True, seed=data_seed
+            )
 
             dataset_orig_train_pred = dataset_orig_train.copy(deepcopy=True)
             dataset_orig_valid_pred = dataset_orig_valid.copy(deepcopy=True)
-            dataset_new_valid_pred = dataset_orig_valid.copy(deepcopy=True)
+            dataset_new_valid_pred = dataset_orig_valid.copy(
+                deepcopy=True
+            )  # This variable is unused
 
             # train the Logistic Regression Model
 
@@ -136,7 +122,7 @@ def main():
                 privileged_groups=privileged_groups,
                 unprivileged_groups=unprivileged_groups,
                 cost_constraint=cost_constraint,
-                seed=randseed,
+                seed=model_seed,
             )
 
             cpp = cpp.fit(dataset_orig_valid, dataset_orig_valid_pred)
@@ -144,7 +130,7 @@ def main():
             # test the classifier:
 
             dataset_orig_test_pred = dataset_orig_test.copy(deepcopy=True)
-            dataset_new_test_pred = dataset_orig_test.copy(deepcopy=True)
+            dataset_new_test_pred = dataset_orig_test.copy(deepcopy=True)  # This variable is unused
 
             X_test = scale_orig.transform(dataset_orig_test.features)
             y_test_pred_prob = lmod.predict_proba(X_test)[:, fav_idx]

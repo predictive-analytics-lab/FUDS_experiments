@@ -15,32 +15,11 @@ import numpy as np
 
 def main():
     # Load the data:
-    state_list_short = [
-        "CA",
-        "AK",
-        "HI",
-        "KS",
-        "NE",
-        "ND",
-        "NY",
-        "OR",
-        "PR",
-        "TX",
-        "VT",
-        "WY",
-    ]
+    state_list_short = ["CA", "AK", "HI", "KS", "NE", "ND", "NY", "OR", "PR", "TX", "VT", "WY"]
 
     data_source = ACSDataSource(survey_year="2014", horizon="1-Year", survey="person")
 
-    feat = ['COW',
-        'SCHL',
-        'MAR',
-        'OCCP',
-        'POBP',
-        'RELP',
-        'WKHP',
-        'SEX',
-        'RAC1P']
+    feat = ['COW', 'SCHL', 'MAR', 'OCCP', 'POBP', 'RELP', 'WKHP', 'SEX', 'RAC1P']
 
     max_iterations = 500
     C = 100
@@ -81,8 +60,10 @@ def main():
         unprivileged_groups = [{"SEX": 2}]
         dataset_orig = data_all
 
-        for _ in range(10):  # 10-fold cross validation, save values for each fold.
-            dataset_orig_train, dataset_orig_test = dataset_orig.split([0.7], shuffle=True)
+        for data_seed in range(10):  # 10-fold cross validation, save values for each fold.
+            dataset_orig_train, dataset_orig_test = dataset_orig.split(
+                [0.7], shuffle=True, seed=data_seed
+            )
 
             fair_model = GerryFairClassifier(
                 C=C,

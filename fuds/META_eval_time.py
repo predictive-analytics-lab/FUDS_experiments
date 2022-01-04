@@ -13,34 +13,14 @@ from sklearn.preprocessing import MaxAbsScaler
 
 # TIME SHIFT
 def main():
-    state_list_short = [
-        "CA",
-        "AK",
-        "HI",
-        "KS",
-        "NE",
-        "ND",
-        "NY",
-        "OR",
-        "PR",
-        "TX",
-        "VT",
-        "WY",
-    ]
+    state_list_short = ["CA", "AK", "HI", "KS", "NE", "ND", "NY", "OR", "PR", "TX", "VT", "WY"]
+    model_seed = 12345679
 
     # Load the data:
 
     data_source = ACSDataSource(survey_year="2014", horizon="1-Year", survey="person")
 
-    feat = ['COW',
-        'SCHL',
-        'MAR',
-        'OCCP',
-        'POBP',
-        'RELP',
-        'WKHP',
-        'SEX',
-        'RAC1P']
+    feat = ['COW', 'SCHL', 'MAR', 'OCCP', 'POBP', 'RELP', 'WKHP', 'SEX', 'RAC1P']
 
     # We perform the evaluation for each state:
 
@@ -76,14 +56,16 @@ def main():
         unprivileged_groups = [{"SEX": 2}]
         dataset_orig = data_all
 
-        for _ in range(10):  # 10-fold cross validation, save values for each fold.
-            dataset_orig_train, dataset_orig_test = dataset_orig.split([0.7], shuffle=True)
+        for data_seed in range(10):  # 10-fold cross validation, save values for each fold.
+            dataset_orig_train, dataset_orig_test = dataset_orig.split(
+                [0.7], shuffle=True, seed=data_seed
+            )
 
             min_max_scaler = MaxAbsScaler()
             dataset_orig_train.features = min_max_scaler.fit_transform(dataset_orig_train.features)
-            debiased_model = MetaFairClassifier(tau=0.7, sensitive_attr="SEX", type="fdr").fit(
-                dataset_orig_train
-            )
+            debiased_model = MetaFairClassifier(
+                tau=0.7, sensitive_attr="SEX", type="fdr", seed=model_seed
+            ).fit(dataset_orig_train)
 
             # test the classifier:
 

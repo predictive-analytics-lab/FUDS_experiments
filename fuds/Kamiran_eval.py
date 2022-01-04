@@ -15,20 +15,8 @@ def main():
     root_dir = Path("..")
 
     # States list can from
-    state_list_short = [
-        "CA",
-        "AK",
-        "HI",
-        "KS",
-        "NE",
-        "ND",
-        "NY",
-        "OR",
-        "PR",
-        "TX",
-        "VT",
-        "WY",
-    ]
+    state_list_short = ["CA", "AK", "HI", "KS", "NE", "ND", "NY", "OR", "PR", "TX", "VT", "WY"]
+    model_seed = 12345679
 
     for state in state_list_short:
 
@@ -41,17 +29,16 @@ def main():
         DI = np.array([])
         NPV = np.array([])
 
-        train_data: em.DataTuple = em.acs_income(
+        data: em.DataTuple = em.acs_income(
             root=root_dir, year=2018, states=[state], horizon=1
         ).load()
 
-        for i in range(10):  # 10-fold cross validation, save values for each fold.
-            train, test = em.train_test_split(data, train_percentage=0.7, random_seed=i)
+        for data_seed in range(10):  # 10-fold cross validation, save values for each fold.
+            train, test = em.train_test_split(data, train_percentage=0.7, random_seed=data_seed)
 
-            clf = em.Kamiran()
-            clf = clf.fit(train)
+            clf = em.Kamiran(seed=model_seed)
 
-            pred = clf.predict(test)
+            pred = clf.run(train, test)
 
             metrics = [em.Accuracy()]
             per_sens = [

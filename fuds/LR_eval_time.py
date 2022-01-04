@@ -16,31 +16,11 @@ from sklearn.preprocessing import StandardScaler
 
 def main():
     # Load the data:
-    state_list_short = [
-        "CA",
-        "AK",
-        "HI",
-        "KS",
-        "NE",
-        "ND",
-        "NY",
-        "OR",
-        "PR",
-        "TX",
-        "VT",
-        "WY",
-    ]
+    state_list_short = ["CA", "AK", "HI", "KS", "NE", "ND", "NY", "OR", "PR", "TX", "VT", "WY"]
     data_source = ACSDataSource(survey_year="2014", horizon="1-Year", survey="person")
 
-    feat = ['COW',
-        'SCHL',
-        'MAR',
-        'OCCP',
-        'POBP',
-        'RELP',
-        'WKHP',
-        'SEX',
-        'RAC1P']
+    feat = ['COW', 'SCHL', 'MAR', 'OCCP', 'POBP', 'RELP', 'WKHP', 'SEX', 'RAC1P']
+    model_seed = 12345679
 
     # We perform the evaluation for each state:
 
@@ -76,17 +56,22 @@ def main():
         unprivileged_groups = [{"SEX": 2}]
         dataset_orig = data_all
 
-        for _ in range(10):  # 10-fold cross validation, save values for each fold.
-            dataset_orig_train, dataset_orig_test = dataset_orig.split([0.7], shuffle=True)
+        for data_seed in range(10):  # 10-fold cross validation, save values for each fold.
+            dataset_orig_train, dataset_orig_test = dataset_orig.split(
+                [0.7], shuffle=True, seed=data_seed
+            )
 
-            dataset_orig_train_pred = dataset_orig_train.copy(deepcopy=True)
+            dataset_orig_train_pred = dataset_orig_train.copy(
+                deepcopy=True
+            )  # This variable is unused
 
             # train the Logistic Regression Model
 
             scale_orig = StandardScaler()
             X_train = scale_orig.fit_transform(dataset_orig_train.features)
             y_train = dataset_orig_train.labels.ravel()
-            lmod = LogisticRegression()
+            rand_state = np.random.RandomState(model_seed)
+            lmod = LogisticRegression(random_state=rand_state)
             lmod.fit(X_train, y_train)
 
             # test the classifier:

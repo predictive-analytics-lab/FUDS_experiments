@@ -11,6 +11,7 @@ tensorflow = "^2.7.0"
 folktables = "^0.0.11"
 ethicml = "^0.5.1"
 fairlearn = "^0.7.0"
+wandb = "^0.12.9"
 
 [tool.poetry.dev-dependencies]
 black = "^21.12b0"
