@@ -5,23 +5,17 @@
 
 
 from aif360.algorithms.postprocessing import CalibratedEqOddsPostprocessing
-from aif360.datasets import StandardDataset
 from aif360.metrics import ClassificationMetric
-from folktables import ACSDataSource, ACSEmployment
+from folktables import ACSDataSource
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
-import wandb
 
-from fuds.utilties import model_seed, state_list_short, feat
+from fuds.utilties import load_acs_aif, model_seed, state_list_short
 
 
 def main():
-    # Load the data
-
     data_source = ACSDataSource(survey_year="2018", horizon="1-Year", survey="person")
-
-
     class_thresh = 0.5
     # cost constraint of fnr will optimize generalized false negative rates, that of
     # fpr will optimize generalized false positive rates, and weighted will optimize
@@ -40,28 +34,7 @@ def main():
         FOR_CEO = np.array([])
         ACC_CEO = np.array([])
 
-        acs_data = data_source.get_data(states=[state], download=True)
-        data = acs_data[feat]
-        features, label, group = ACSEmployment.df_to_numpy(acs_data)
-        # stick to instances with no NAN values
-        data = data.dropna()
-        index = data.index
-        a_list = list(index)
-        new_label = label[a_list]
-        data["label"] = new_label
-        favorable_classes = [True]
-        protected_attribute_names = ["SEX"]
-        privileged_classes = np.array([[1]])
-        data_all = StandardDataset(
-            data,
-            "label",
-            favorable_classes=favorable_classes,
-            protected_attribute_names=protected_attribute_names,
-            privileged_classes=privileged_classes,
-        )
-        privileged_groups = [{"SEX": 1}]
-        unprivileged_groups = [{"SEX": 2}]
-        dataset_orig = data_all
+        dataset_orig, privileged_groups, unprivileged_groups = load_acs_aif(data_source, state)
 
         for data_seed in range(10):  # 10-fold cross validation, save values for each fold.
             # dataset_orig_train, dataset_orig_test = dataset_orig.split([0.7], shuffle=True)
