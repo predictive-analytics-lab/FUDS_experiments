@@ -14,6 +14,8 @@ import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 
+from fuds.utilties import model_seed
+
 
 def main():
     # Load the data
@@ -29,7 +31,6 @@ def main():
     # a weighted combination of both
     cost_constraint = "weighted"  # "fnr", "fpr", "weighted"
     # random seed for calibrated equal odds prediction
-    model_seed = 12345679
 
     # We perform the evaluation for each state:
 

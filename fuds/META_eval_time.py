@@ -12,9 +12,11 @@ from sklearn.preprocessing import MaxAbsScaler
 
 
 # TIME SHIFT
+from fuds.utilties import model_seed
+
+
 def main():
     state_list_short = ["CA", "AK", "HI", "KS", "NE", "ND", "NY", "OR", "PR", "TX", "VT", "WY"]
-    model_seed = 12345679
 
     # Load the data:
 

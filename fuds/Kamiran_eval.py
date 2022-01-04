@@ -3,6 +3,8 @@
 # import the required packages
 import nest_asyncio
 
+from fuds.utilties import model_seed
+
 nest_asyncio.apply()
 
 from pathlib import Path
@@ -16,7 +18,6 @@ def main():
 
     # States list can from
     state_list_short = ["CA", "AK", "HI", "KS", "NE", "ND", "NY", "OR", "PR", "TX", "VT", "WY"]
-    model_seed = 12345679
 
     for state in state_list_short:
 
