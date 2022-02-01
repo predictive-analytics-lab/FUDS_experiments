@@ -33,6 +33,7 @@ def main():
         PPV_CEO = np.array([])
         FOR_CEO = np.array([])
         ACC_CEO = np.array([])
+        CONS_CEO = np.array([])
 
         dataset_orig, privileged_groups, unprivileged_groups = load_acs_aif(data_source, state)
 
@@ -129,6 +130,7 @@ def main():
             ppv = cm_transf_test.difference(cm_transf_test.positive_predictive_value)
             fom = cm_transf_test.difference(cm_transf_test.false_omission_rate)
             acc = cm_transf_test.accuracy()
+            cons = cm_transf_test.consistency()
 
             FPR_CEO = np.append(FPR_CEO, fpr)
             FNR_CEO = np.append(FNR_CEO, fnr)
@@ -136,11 +138,12 @@ def main():
             PPV_CEO = np.append(PPV_CEO, ppv)
             FOR_CEO = np.append(FOR_CEO, fom)
             ACC_CEO = np.append(ACC_CEO, acc)
+            CONS_CEO = np.append(CONS_CEO, cons)
 
         filename = f"Adult_geo_gender_CEO_eval_{state}.txt"
 
         with open(filename, "w") as a_file:
-            res = [FPR_CEO, FNR_CEO, TPR_CEO, PPV_CEO, FOR_CEO, ACC_CEO]
+            res = [FPR_CEO, FNR_CEO, TPR_CEO, PPV_CEO, FOR_CEO, ACC_CEO, CONS_CEO]
 
             for metric in res:
                 np.savetxt(a_file, metric)
