@@ -25,6 +25,7 @@ def main():
         PPV_META = np.array([])
         FOR_META = np.array([])
         ACC_META = np.array([])
+        CONS_META = np.array([])
 
         dataset_orig, privileged_groups, unprivileged_groups = load_acs_aif(data_source, state)
 
@@ -56,6 +57,7 @@ def main():
             ppv = cm_transf_test.difference(cm_transf_test.positive_predictive_value)
             fom = cm_transf_test.difference(cm_transf_test.false_omission_rate)
             acc = cm_transf_test.accuracy()
+            cons = cm_transf_test.consistency()
 
             FPR_META = np.append(FPR_META, fpr)
             FNR_META = np.append(FNR_META, fnr)
@@ -63,11 +65,12 @@ def main():
             PPV_META = np.append(PPV_META, ppv)
             FOR_META = np.append(FOR_META, fom)
             ACC_META = np.append(ACC_META, acc)
+            CONS_META = np.append(CONS_META, cons)
 
         filename = f"Adult_geo_gender_META_eval_{state}.txt"
 
         with open(filename, "w") as a_file:
-            res = [FPR_META, FNR_META, TPR_META, PPV_META, FOR_META, ACC_META]
+            res = [FPR_META, FNR_META, TPR_META, PPV_META, FOR_META, ACC_META, CONS_META]
 
             for metric in res:
                 np.savetxt(a_file, metric)
