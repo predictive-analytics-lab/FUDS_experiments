@@ -5,7 +5,8 @@ from folktables import ACSDataSource, ACSEmployment
 import numpy as np
 
 model_seed = 12345679
-state_list_short = ["CA", "AK", "HI", "KS", "NE", "ND", "NY", "OR", "PR", "TX", "VT", "WY"]
+#state_list_short = ["CA", "AK", "HI", "KS", "NE", "ND", "NY", "OR", "PR", "TX", "VT", "WY"]
+state_list_short = ["PA", "WA", "OK"]
 feat = ['COW', 'SCHL', 'MAR', 'OCCP', 'POBP', 'RELP', 'WKHP', 'SEX', 'RAC1P']
 
 
