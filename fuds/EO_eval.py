@@ -27,6 +27,7 @@ def main():
         PPV_EO = np.array([])
         FOR_EO = np.array([])
         ACC_EO = np.array([])
+        CONS_EO = np.array([])
 
         dataset_orig, privileged_groups, unprivileged_groups = load_acs_aif(data_source, state)
 
@@ -123,6 +124,7 @@ def main():
             ppv = cm_transf_test.difference(cm_transf_test.positive_predictive_value)
             fom = cm_transf_test.difference(cm_transf_test.false_omission_rate)
             acc = cm_transf_test.accuracy()
+            cons = cm_transf_test.consistency()
 
             FPR_EO = np.append(FPR_EO, fpr)
             FNR_EO = np.append(FNR_EO, fnr)
@@ -130,11 +132,12 @@ def main():
             PPV_EO = np.append(PPV_EO, ppv)
             FOR_EO = np.append(FOR_EO, fom)
             ACC_EO = np.append(ACC_EO, acc)
+            CONS_EO = np.append(CONS_EO, cons)
 
         filename = f"Adult_geo_gender_EO_eval_{state}.txt"
 
         with open(filename, "w") as a_file:
-            res = [FPR_EO, FNR_EO, TPR_EO, PPV_EO, FOR_EO, ACC_EO]
+            res = [FPR_EO, FNR_EO, TPR_EO, PPV_EO, FOR_EO, ACC_EO, CONS_EO]
 
             for metric in res:
                 np.savetxt(a_file, metric)
