@@ -25,6 +25,7 @@ def main():
         PPV_RW = np.array([])
         FOR_RW = np.array([])
         ACC_RW = np.array([])
+        CONS_RW = np.array([])
 
         dataset_orig, privileged_groups, unprivileged_groups = load_acs_aif(data_source, state)
 
@@ -73,6 +74,7 @@ def main():
             ppv = cm_transf_test.difference(cm_transf_test.positive_predictive_value)
             fom = cm_transf_test.difference(cm_transf_test.false_omission_rate)
             acc = cm_transf_test.accuracy()
+            cons = cm_transf_test.consistency()
 
             FPR_RW = np.append(FPR_RW, fpr)
             FNR_RW = np.append(FNR_RW, fnr)
@@ -80,11 +82,12 @@ def main():
             PPV_RW = np.append(PPV_RW, ppv)
             FOR_RW = np.append(FOR_RW, fom)
             ACC_RW = np.append(ACC_RW, acc)
+            CONS_RW = np.append(CONS_RW, cons)
 
         filename = f"Adult_geo_gender_RW_eval_{state}.txt"
 
         with open(filename, "w") as a_file:
-            res = [FPR_RW, FNR_RW, TPR_RW, PPV_RW, FOR_RW, ACC_RW]
+            res = [FPR_RW, FNR_RW, TPR_RW, PPV_RW, FOR_RW, ACC_RW, CONS_RW]
 
             for metric in res:
                 np.savetxt(a_file, metric)
